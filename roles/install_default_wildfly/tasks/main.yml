@@ -114,7 +114,7 @@
 
 - name: Add the management console options to /etc/systemd/system/wildfly.service
   shell: 
-    cmd: sed -i 's/$WILDFLY_BIND/$WILDFLY_BIND $WINDFLY_MANAGEMENT_CONSOLE_BIND/g' /etc/systemd/system/wildfly.service
+    cmd: sed -i 's/$WILDFLY_BIND/$WILDFLY_BIND $WILDFLY_MANAGEMENT_CONSOLE_BIND/g' /etc/systemd/system/wildfly.service
     warn: false
 
 - name: reload the service daemon, wildfly service and enable wildfly on reboot
