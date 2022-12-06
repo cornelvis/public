@@ -109,7 +109,7 @@
 
 - name: "Add the management console options to {{var_wildfly_dest_folder}}/bin/launch.sh"
   shell: 
-    cmd: "sed -i 's/$3/$3 -bamanagement S4/g' {{var_wildfly_dest_folder}}/bin/launch.sh"
+    cmd: "sed -i 's/$3/$3 -bmanagement S4/g' {{var_wildfly_dest_folder}}/bin/launch.sh"
     warn: false
 
 - name: Add the management console options to /etc/systemd/system/wildfly.service
