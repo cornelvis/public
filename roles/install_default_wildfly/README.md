@@ -19,7 +19,7 @@ var_wildfly_archive_dest
 var_tmp_wildfly_dest_folder
 var_group
 var_user
-var_wildfly_service_dest
+var_wildfly_etc_config_dest
 
 Dependencies
 ------------
