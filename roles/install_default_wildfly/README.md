@@ -26,6 +26,7 @@ Dependencies
 
 Written for Ubuntu (Debian)
 works on ansible 2.10.8
+You still need to create an admin user with sudo /opt/wildfly/bin/add-user.sh
 
 Example Playbook
 ----------------
