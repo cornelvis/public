@@ -45,6 +45,8 @@ License
 
 GNU General Public License v3.0
 
+Steps based on https://medium.com/@hasnat.saeed/install-jboss-wildfly-on-ubuntu-18-04-ac00719a2f02
+
 Author Information
 ------------------
 
