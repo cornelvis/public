@@ -1,0 +1,9 @@
+---
+- name: install wildfly server
+  gather_facts: false
+  become: True
+  become_user: root
+  hosts: all
+
+  roles:
+    - install_default_wildfly

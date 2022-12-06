@@ -1,0 +1,9 @@
+---
+# vars file for install_default_wildfly
+var_wildfly_download_url: https://github.com/wildfly/wildfly/releases/download/27.0.0.Final/wildfly-27.0.0.Final.tar.gz
+var_wildfly_dest_folder: /opt/wildfly
+var_wildfly_archive_dest: /tmp/wildfly-27.0.0.Final.tar.gz
+var_tmp_wildfly_dest_folder: /opt/wildfly-27.0.0.Final
+var_group: wildfly
+var_user: wildfly
+var_wildfly_service_dest: /opt/wildfly

@@ -1,0 +1,125 @@
+---
+
+- name: Check if java is installed
+  command: java -version
+  register: java_result
+  ignore_errors: True
+
+- name: install default java version when not installed
+  apt:
+    update_cache: yes
+    name: default-jdk
+    state: latest
+  when: java_result is failed
+
+- name: Display Java version installed
+  shell: java -version 2>&1 | sed -n ';s/.* version "\(.*\)\.\(.*\)\.*".*/\1\2/p;'
+  register: java_version_result
+
+- name: Java version installed
+  debug:
+    var: java_version_result.stdout
+
+- name: Check if we already have "{{var_wildfly_dest_folder}}" directory
+  stat:
+    path: "{{var_wildfly_dest_folder}}"
+  register: wildfly_directory_opt
+
+- name: Download wildfly locally to "/tmp"
+  get_url:
+    url: "{{var_wildfly_download_url}}"
+    dest: /tmp
+    mode: 0755
+  when: wildfly_directory_opt.stat.exists == false
+
+- name: Unpack wildfly
+  unarchive: 
+    src: "{{var_wildfly_archive_dest}}"
+    dest: /opt
+    copy: no
+  when: wildfly_directory_opt.stat.exists == false
+    
+- name: Delete the downloaded file again
+  file:
+    path: "{{var_wildfly_archive_dest}}"
+    state: absent
+    
+- name: rename the generated directory to "{{var_wildfly_dest_folder}}"
+  shell: mv "{{var_tmp_wildfly_dest_folder}}" "{{var_wildfly_dest_folder}}"
+  when: wildfly_directory_opt.stat.exists == false
+
+- name: add a "{{var_group}}" group
+  group:
+    name: "{{var_group}}"
+    state: present
+
+- name: add a "{{var_user}}" user 
+  user: 
+    name: "{{var_user}}"
+    group: "{{var_group}}"
+    shell: /sbin/nologin
+    home: "{{var_wildfly_dest_folder}}"
+
+- name: Change permissions on "{{var_wildfly_dest_folder}}"
+  file:
+    path: "{{var_wildfly_dest_folder}}"
+    owner: "{{var_user}}"
+    group: "{{var_group}}"
+    recurse: yes
+    mode: o+x
+
+- name: Creating a SystemD Service folder for Wildfly
+  file:
+    path: "{{var_wildfly_service_dest}}"
+    state: directory
+    mode: '0755'
+
+- name: Copying the "{{var_wildfly_service_dest}}"/wildfly.conf config file to the "{{var_wildfly_service_dest}}" folder
+  copy:
+    src: "{{var_wildfly_dest_folder}}/docs/contrib/scripts/systemd/wildfly.conf"
+    dest: "{{var_wildfly_service_dest}}/wildfly.conf"
+    remote_src: yes
+
+- name: copy Wildfly launch script to "{{var_wildfly_dest_folder}}/bin/" 
+  copy:
+    src: "{{var_wildfly_dest_folder}}/docs/contrib/scripts/systemd/launch.sh"
+    dest: "{{var_wildfly_dest_folder}}/bin/launch.sh"
+    owner: wildfly
+    mode: '0755'
+    remote_src: yes
+
+- name: Copy the service definition file to /etc/systemd/system directory
+  copy:
+    src: "{{var_wildfly_service_dest}}/docs/contrib/scripts/systemd/wildfly.service"
+    dest: /etc/systemd/system/wildfly.service
+    remote_src: yes
+
+- name: Add group wildfly to the wildfly service
+  lineinfile:
+    path: /etc/systemd/system/wildfly.service
+    insertafter: "^User=wildfly"
+    line: "Group=wildfly"
+
+- name: Insert lines in "{{var_wildfly_dest_folder}}/wildfly.conf"
+  blockinfile:
+    path: "{{var_wildfly_dest_folder}}/wildfly.conf"
+    block: |
+      # The adress console to bind to
+      WILDFLY_MANAGEMENT_CONSOLE_BIND=0.0.0.0
+
+- name: "Add the management console options to {{var_wildfly_dest_folder}}/bin/launch.sh"
+  shell: 
+    cmd: "sed -i 's/$3/$3 -bamanagement S4/g' {{var_wildfly_dest_folder}}/bin/launch.sh"
+    warn: false
+
+- name: Add the management console options to /etc/systemd/system/wildfly.service
+  shell: 
+    cmd: sed -i 's/$WILDFLY_BIND/$WILDFLY_BIND $WINDFLY_MANAGEMENT_CONSOLE_BIND/g' /etc/systemd/system/wildfly.service
+    warn: false
+
+- name: reload the service daemon, wildfly service and enable wildfly on reboot
+  systemd:
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+    name: wildfly
