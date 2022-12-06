@@ -70,14 +70,14 @@
 
 - name: Creating a SystemD Service folder for Wildfly
   file:
-    path: "{{var_wildfly_service_dest}}"
+    path: "{{var_wildfly_dest_folder}}"
     state: directory
     mode: '0755'
 
-- name: Copying the "{{var_wildfly_service_dest}}"/wildfly.conf config file to the "{{var_wildfly_service_dest}}" folder
+- name: Copying the "{{var_wildfly_dest_folder}}"/wildfly.conf config file to the "{{var_wildfly_dest_folder}}" folder
   copy:
     src: "{{var_wildfly_dest_folder}}/docs/contrib/scripts/systemd/wildfly.conf"
-    dest: "{{var_wildfly_service_dest}}/wildfly.conf"
+    dest: "{{var_wildfly_dest_folder}}/wildfly.conf"
     remote_src: yes
 
 - name: copy Wildfly launch script to "{{var_wildfly_dest_folder}}/bin/" 
@@ -90,7 +90,7 @@
 
 - name: Copy the service definition file to /etc/systemd/system directory
   copy:
-    src: "{{var_wildfly_service_dest}}/docs/contrib/scripts/systemd/wildfly.service"
+    src: "{{var_wildfly_dest_folder}}/docs/contrib/scripts/systemd/wildfly.service"
     dest: /etc/systemd/system/wildfly.service
     remote_src: yes
 
