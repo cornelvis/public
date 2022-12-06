@@ -1,2 +1,2 @@
-# development
-Ansible Projects folder
+# Public
+Public Ansible Projects folder
